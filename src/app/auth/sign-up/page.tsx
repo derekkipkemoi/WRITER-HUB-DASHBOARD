@@ -11,7 +11,8 @@ export const metadata = { title: `Sign up | Auth | ${config.site.name}` } satisf
 export default function Page(): React.JSX.Element {
   return (
     <Layout>
-      <GuestGuard children={<SignUpForm />} currentPage={'signup'}>
+      <GuestGuard currentPage="signup">
+        <SignUpForm />
       </GuestGuard>
     </Layout>
   );

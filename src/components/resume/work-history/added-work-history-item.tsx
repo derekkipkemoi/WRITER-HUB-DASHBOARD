@@ -14,8 +14,8 @@ import {
     Slide,
     Button,
 } from '@mui/material';
-import { CalendarToday as CalendarIcon, Delete, Edit, ExpandMore, ExpandLess } from '@mui/icons-material';
-import { ArrowForward, ArrowBack } from '@mui/icons-material';
+import { CalendarToday as CalendarIcon, Delete, Edit, ExpandMore, ExpandLess , ArrowForward, ArrowBack } from '@mui/icons-material';
+
 import { UserContext } from '@/contexts/user-context';
 import { useUser } from '@/hooks/use-user';
 import { authClient } from '@/lib/auth/client';
@@ -134,7 +134,7 @@ export const WorkHistoryItem: React.FC<WorkHistoryItemProps> = ({ onEditExperien
                                                         sx={{ color: 'primary.main' }}
                                                         aria-label="expand"
                                                         size="small"
-                                                        onClick={() => toggleDescription(jobIndex)} // Toggle description expansion
+                                                        onClick={() => { toggleDescription(jobIndex); }} // Toggle description expansion
                                                     >
                                                         {isExpanded ? <ExpandLess /> : <ExpandMore />} {/* Toggle expand/collapse icon */}
                                                     </IconButton>
@@ -142,7 +142,7 @@ export const WorkHistoryItem: React.FC<WorkHistoryItemProps> = ({ onEditExperien
                                                         sx={{ color: 'primary.main' }}
                                                         aria-label="edit"
                                                         size="small"
-                                                        onClick={() => onEditExperience(job)} // Pass the job object to the edit function
+                                                        onClick={() => { onEditExperience(job); }} // Pass the job object to the edit function
                                                     >
                                                         <Edit fontSize="small" />
                                                     </IconButton>
@@ -150,7 +150,7 @@ export const WorkHistoryItem: React.FC<WorkHistoryItemProps> = ({ onEditExperien
                                                         sx={{ color: 'error.main' }}
                                                         aria-label="delete"
                                                         size="small"
-                                                        onClick={() => handleDeleteClick(jobIndex)} // Pass the index for deletion
+                                                        onClick={() => { handleDeleteClick(jobIndex); }} // Pass the index for deletion
                                                     >
                                                         <Delete fontSize="small" />
                                                     </IconButton>
@@ -164,20 +164,16 @@ export const WorkHistoryItem: React.FC<WorkHistoryItemProps> = ({ onEditExperien
                                                     <CalendarIcon fontSize="small" style={{ margin: '0 4px' }} />
                                                     {job.startDate}
                                                 </Typography>
-                                                {!job.workingHere && job.endDate && (
-                                                    <Typography style={{ display: 'flex', alignItems: 'center', fontSize: '0.9rem', color: 'text.secondary', marginLeft: '8px' }}>
+                                                {!job.workingHere && job.endDate ? <Typography style={{ display: 'flex', alignItems: 'center', fontSize: '0.9rem', color: 'text.secondary', marginLeft: '8px' }}>
                                                         <span style={{ fontWeight: 'bold' }}>To:</span> {/* Bold "To:" label */}
                                                         <CalendarIcon fontSize="small" style={{ margin: '0 4px' }} />
                                                         {job.endDate}
-                                                    </Typography>
-                                                )}
-                                                {job.workingHere && (
-                                                    <Typography
+                                                    </Typography> : null}
+                                                {job.workingHere ? <Typography
                                                         sx={{ marginLeft: '8px', fontSize: '0.9rem', fontWeight: '500', color: 'success.main' }} // Adjusted to use 'success.main'
                                                     >
                                                         Currently Working Here
-                                                    </Typography>
-                                                )}
+                                                    </Typography> : null}
                                             </Box>
                                             <Typography variant="body2" style={{ marginTop: '4px', fontSize: '0.9rem' }}>
                                                 {/* Display description with expand/collapse functionality */}
@@ -188,7 +184,7 @@ export const WorkHistoryItem: React.FC<WorkHistoryItemProps> = ({ onEditExperien
                                                             component="span"
                                                             color="primary"
                                                             style={{ cursor: 'pointer' }}
-                                                            onClick={() => toggleDescription(jobIndex)} // Expand on click
+                                                            onClick={() => { toggleDescription(jobIndex); }} // Expand on click
                                                         >
                                                             &nbsp;... Expand
                                                         </Typography>

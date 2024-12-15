@@ -3,14 +3,14 @@ import type { Metadata } from 'next';
 
 import { config } from '@/config';
 
-import CheckoutForm from "./checkout";
+import ResumeTemplates from './resume-templates';
 
-export const metadata = { title: `App | Final | ${config.site.name}` } satisfies Metadata;
+export const metadata = { title: `Account | Dashboard | ${config.site.name}` } satisfies Metadata;
 
 export default function Page(): React.JSX.Element {
   return (
     <div>
-      <CheckoutForm />
+      <ResumeTemplates />
     </div>
   );
 }

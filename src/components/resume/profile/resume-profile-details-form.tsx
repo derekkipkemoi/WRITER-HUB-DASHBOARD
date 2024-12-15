@@ -1,29 +1,30 @@
 'use client';
 
 import * as React from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import {
-  Card,
-  CardHeader,
-  CardContent,
-  Divider,
-  Grid,
-  FormControl,
-  InputLabel,
-  OutlinedInput,
-  FormHelperText,
   Avatar,
   Button,
-  IconButton,
+  Card,
   CardActions,
-  Typography,
+  CardContent,
+  CardHeader,
+  Divider,
+  FormControl,
+  FormHelperText,
+  Grid,
+  IconButton,
+  InputLabel,
   LinearProgress,
+  OutlinedInput,
+  Typography,
 } from '@mui/material';
-import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import { Controller, set, useForm } from 'react-hook-form';
 import { z as zod } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useUser } from '@/hooks/use-user';
+
 import { authClient } from '@/lib/auth/client';
+import { useUser } from '@/hooks/use-user';
 
 const phoneRegex = new RegExp(/^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/);
 
@@ -52,13 +53,13 @@ export const ResumeProfileDetailsForm: React.FC<ResumeProfileDetailsFormProps> =
   const [isChanged, setIsChanged] = React.useState<boolean>(false); // New state for tracking changes
 
   const initialValues = {
-    firstName: user?.firstName || "",
-    lastName: user?.lastName || "",
-    email: user?.email || "",
-    phone: user?.phone || "",
-    city: user?.city || "",
-    country: user?.country || "",
-    professionalTitle: user?.professionalTitle || "",
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    city: user?.city || '',
+    country: user?.country || '',
+    professionalTitle: user?.professionalTitle || '',
   };
 
   const {
@@ -71,39 +72,45 @@ export const ResumeProfileDetailsForm: React.FC<ResumeProfileDetailsFormProps> =
     defaultValues: initialValues,
   });
 
-  const handleImageChange = React.useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsPending(true)
-    const file = event.target.files?.[0];
-    if (file) {
-      setSelectedImage(file);
-      await authClient.uploadAvatar(file)
+  const handleImageChange = React.useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      setIsPending(true);
+      const file = event.target.files?.[0];
+      if (file) {
+        setSelectedImage(file);
+        await authClient.uploadAvatar(file);
+        await checkSession?.();
+        setIsPending(false);
+        setSelectedImage(null);
+      }
+    },
+    [checkSession, selectedImage]
+  );
+
+  const onSubmit = React.useCallback(
+    async (values: Values): Promise<void> => {
+      setIsPending(true);
+      const id = localStorage.getItem('id');
+      if (!id) {
+        setError('root', { type: 'server', message: 'User is not authenticated' });
+        return;
+      }
+
+      // Check if any values have changed before proceeding
+      const { email, ...valuesWithoutEmail } = values; // Exclude email from values
+
+      const valuesWithId = { ...valuesWithoutEmail, id };
+      const { error } = await authClient.updateUser(valuesWithId);
+      if (error) {
+        setError('root', { type: 'server', message: error });
+        return;
+      }
       await checkSession?.();
+      setIsChanged(false);
       setIsPending(false);
-      setSelectedImage(null)
-    }
-  }, [checkSession, selectedImage]);
-
-  const onSubmit = React.useCallback(async (values: Values): Promise<void> => {
-    setIsPending(true)
-    const id = localStorage.getItem('id');
-    if (!id) {
-      setError('root', { type: 'server', message: 'User is not authenticated' });
-      return;
-    }
-
-    // Check if any values have changed before proceeding
-    const { email, ...valuesWithoutEmail } = values; // Exclude email from values
-
-    const valuesWithId = { ...valuesWithoutEmail, id };
-    const { error } = await authClient.updateUser(valuesWithId);
-    if (error) {
-      setError('root', { type: 'server', message: error });
-      return;
-    }
-    await checkSession?.();
-    setIsChanged(false)
-    setIsPending(false);
-  }, [checkSession, setError, initialValues]);
+    },
+    [checkSession, setError, initialValues]
+  );
 
   // Function to handle input change and update isChanged state
   const handleInputChange = () => {
@@ -113,7 +120,9 @@ export const ResumeProfileDetailsForm: React.FC<ResumeProfileDetailsFormProps> =
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Card>
-        <CardHeader subheader={description} title={subTitle}
+        <CardHeader
+          subheader={description}
+          title={subTitle}
           sx={{
             backgroundColor: 'primary.main', // Change background color
             color: 'white', // Text color for title
@@ -129,18 +138,15 @@ export const ResumeProfileDetailsForm: React.FC<ResumeProfileDetailsFormProps> =
               color: 'white', // Assign a different color to the subheader
               opacity: 0.9, // Slightly transparent subheader
             },
-          }} />
+          }}
+        />
         <Divider />
         <Divider />
         <CardContent>
-          {isPending && ( // Conditionally render the LinearProgress
-            <LinearProgress sx={{ marginBottom: 2 }} />
-          )}
-          <Typography sx={{ color: 'primary.main', fontSize: 12 }}>
-            * Indicate required
-          </Typography>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={4} display="flex" justifyContent="center" alignItems="center">
+          {isPending ? <LinearProgress sx={{ marginBottom: 2 }} /> : null}
+          <Typography sx={{ color: 'primary.main', fontSize: 12 }}>* Indicate required</Typography>
+          <Grid container>
+            <Grid xs={12} md={4} display="flex" justifyContent="center" alignItems="center">
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <input
                   accept="image/*"
@@ -155,9 +161,17 @@ export const ResumeProfileDetailsForm: React.FC<ResumeProfileDetailsFormProps> =
                   </IconButton>
                 </label>
                 {selectedImage ? (
-                  <Avatar alt="Profile Picture" src={URL.createObjectURL(selectedImage)} sx={{ width: 100, height: 100, marginTop: 2 }} />
+                  <Avatar
+                    alt="Profile Picture"
+                    src={URL.createObjectURL(selectedImage)}
+                    sx={{ width: 100, height: 100, marginTop: 2 }}
+                  />
                 ) : (
-                  <Avatar alt="Default Profile Picture" src={user?.avatarUrl || '/assets/user.png'} sx={{ width: 100, height: 100, marginTop: 2, cursor: 'pointer' }} />
+                  <Avatar
+                    alt="Default Profile Picture"
+                    src={user?.avatarUrl || '/assets/user.png'}
+                    sx={{ width: 100, height: 100, marginTop: 2, cursor: 'pointer' }}
+                  />
                 )}
                 <FormHelperText style={{ textAlign: 'center', marginTop: '8px' }}>
                   Upload your profile picture (Optional).
@@ -166,7 +180,7 @@ export const ResumeProfileDetailsForm: React.FC<ResumeProfileDetailsFormProps> =
             </Grid>
 
             <Grid item xs={12} md={8}>
-              <Grid container spacing={3}>
+              <Grid spacing={2} container>
                 <Grid item md={6} xs={12}>
                   <Controller
                     name="firstName"
@@ -174,12 +188,16 @@ export const ResumeProfileDetailsForm: React.FC<ResumeProfileDetailsFormProps> =
                     render={({ field }) => (
                       <FormControl fullWidth error={Boolean(errors.firstName)}>
                         <InputLabel>First Name *</InputLabel>
-                        <OutlinedInput required {...field} label="First name"
+                        <OutlinedInput
+                          required
+                          {...field}
+                          label="First name"
                           onChange={(e) => {
                             field.onChange(e);
                             handleInputChange();
-                          }} />
-                        {errors.firstName && <FormHelperText>{errors.firstName.message}</FormHelperText>}
+                          }}
+                        />
+                        {errors.firstName ? <FormHelperText>{errors.firstName.message}</FormHelperText> : null}
                       </FormControl>
                     )}
                   />
@@ -191,12 +209,15 @@ export const ResumeProfileDetailsForm: React.FC<ResumeProfileDetailsFormProps> =
                     render={({ field }) => (
                       <FormControl fullWidth error={Boolean(errors.lastName)}>
                         <InputLabel>Surname *</InputLabel>
-                        <OutlinedInput {...field} label="Last name"
+                        <OutlinedInput
+                          {...field}
+                          label="Last name"
                           onChange={(e) => {
                             field.onChange(e);
                             handleInputChange();
-                          }} />
-                        {errors.lastName && <FormHelperText>{errors.lastName.message}</FormHelperText>}
+                          }}
+                        />
+                        {errors.lastName ? <FormHelperText>{errors.lastName.message}</FormHelperText> : null}
                       </FormControl>
                     )}
                   />
@@ -209,7 +230,7 @@ export const ResumeProfileDetailsForm: React.FC<ResumeProfileDetailsFormProps> =
                       <FormControl fullWidth error={Boolean(errors.email)}>
                         <InputLabel>Email *</InputLabel>
                         <OutlinedInput {...field} disabled label="Email address" type="email" />
-                        {errors.email && <FormHelperText>{errors.email.message}</FormHelperText>}
+                        {errors.email ? <FormHelperText>{errors.email.message}</FormHelperText> : null}
                       </FormControl>
                     )}
                   />
@@ -221,12 +242,15 @@ export const ResumeProfileDetailsForm: React.FC<ResumeProfileDetailsFormProps> =
                     render={({ field }) => (
                       <FormControl fullWidth error={Boolean(errors.phone)}>
                         <InputLabel>Phone *</InputLabel>
-                        <OutlinedInput {...field} label="Phone number"
+                        <OutlinedInput
+                          {...field}
+                          label="Phone number"
                           onChange={(e) => {
                             field.onChange(e);
                             handleInputChange();
-                          }} />
-                        {errors.phone && <FormHelperText sx={{ color: 'error.main' }}>{errors.phone.message}</FormHelperText>}
+                          }}
+                        />
+                        {errors.phone ? <FormHelperText sx={{ color: 'error.main' }}>{errors.phone.message}</FormHelperText> : null}
                       </FormControl>
                     )}
                   />
@@ -238,11 +262,14 @@ export const ResumeProfileDetailsForm: React.FC<ResumeProfileDetailsFormProps> =
                     render={({ field }) => (
                       <FormControl fullWidth>
                         <InputLabel>City</InputLabel>
-                        <OutlinedInput {...field} label="City"
+                        <OutlinedInput
+                          {...field}
+                          label="City"
                           onChange={(e) => {
                             field.onChange(e);
                             handleInputChange();
-                          }} />
+                          }}
+                        />
                       </FormControl>
                     )}
                   />
@@ -254,11 +281,14 @@ export const ResumeProfileDetailsForm: React.FC<ResumeProfileDetailsFormProps> =
                     render={({ field }) => (
                       <FormControl fullWidth>
                         <InputLabel>Country</InputLabel>
-                        <OutlinedInput {...field} label="Country"
+                        <OutlinedInput
+                          {...field}
+                          label="Country"
                           onChange={(e) => {
                             field.onChange(e);
                             handleInputChange();
-                          }} />
+                          }}
+                        />
                       </FormControl>
                     )}
                   />
@@ -270,30 +300,38 @@ export const ResumeProfileDetailsForm: React.FC<ResumeProfileDetailsFormProps> =
                     render={({ field }) => (
                       <FormControl fullWidth>
                         <InputLabel>Profession</InputLabel>
-                        <OutlinedInput {...field} label="Professional Title"
+                        <OutlinedInput
+                          {...field}
+                          label="Professional Title"
                           onChange={(e) => {
                             field.onChange(e);
                             handleInputChange();
-                          }} />
-                        <FormHelperText>Enter your current job title or position (e.g., Software Engineer).</FormHelperText>
+                          }}
+                        />
+                        <FormHelperText>
+                          Enter your current job title or position (e.g., Software Engineer).
+                        </FormHelperText>
                       </FormControl>
                     )}
                   />
                 </Grid>
               </Grid>
             </Grid>
-            {isChanged && ( // Conditionally render the Save Changes button
-              <Grid md={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Button type="submit" variant="contained" color="success" sx={{
-                  borderRadius: '25px', // Set border radius to 25px
-                  '&:hover': {
-                    backgroundColor: 'warning.dark', // Optional: change color on hover
-                  },
-                }}>
+            {isChanged ? <Grid md={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="success"
+                  sx={{
+                    borderRadius: '25px', // Set border radius to 25px
+                    '&:hover': {
+                      backgroundColor: 'warning.dark', // Optional: change color on hover
+                    },
+                  }}
+                >
                   Save Profile Changes
                 </Button>
-              </Grid>
-            )}
+              </Grid> : null}
           </Grid>
         </CardContent>
       </Card>

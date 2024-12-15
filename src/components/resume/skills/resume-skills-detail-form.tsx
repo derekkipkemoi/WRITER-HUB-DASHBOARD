@@ -20,7 +20,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import { Star } from '@mui/icons-material';
-import { authClient, Skill } from '@/lib/auth/client';
+import { authClient, type Skill } from '@/lib/auth/client';
 import { useUser } from '@/hooks/use-user';
 import AddedSkills from './added-skills';
 
@@ -178,7 +178,7 @@ export const ResumeSkillsDetailsForm: React.FC<ResumeSkillsDetailsFormProps> = (
                 key={skill}
                 variant={selectedSkills.includes(skill) ? 'contained' : 'outlined'}
                 color={selectedSkills.includes(skill) ? 'primary' : 'inherit'}
-                onClick={() => handleSkillSelection(skill)}
+                onClick={() => { handleSkillSelection(skill); }}
                 startIcon={selectedSkills.includes(skill) ? <RemoveIcon /> : <AddIcon />}
                 sx={{
                   borderRadius: '25px',
@@ -206,7 +206,7 @@ export const ResumeSkillsDetailsForm: React.FC<ResumeSkillsDetailsFormProps> = (
                   <InputLabel>Enter Skill</InputLabel>
                   <OutlinedInput
                     value={newSkill}
-                    onChange={(e) => setNewSkill(e.target.value)}
+                    onChange={(e) => { setNewSkill(e.target.value); }}
                     label="Skill"
                     name="skill"
                   />
@@ -234,7 +234,7 @@ export const ResumeSkillsDetailsForm: React.FC<ResumeSkillsDetailsFormProps> = (
                     {Array.from({ length: 5 }, (_, starIndex) => (
                       <Star
                         key={starIndex}
-                        onClick={() => handleStarClick(currentIndex + index, starIndex + 1)}
+                        onClick={() => { handleStarClick(currentIndex + index, starIndex + 1); }}
                         sx={{
                           cursor: 'pointer',
                           color: starIndex < item.rating ? 'primary.main' : 'gray',
@@ -247,12 +247,12 @@ export const ResumeSkillsDetailsForm: React.FC<ResumeSkillsDetailsFormProps> = (
                     <InputLabel>Skill</InputLabel>
                     <OutlinedInput
                       value={item.skill}
-                      onChange={(e) => handleSkillChange(currentIndex + index, e.target.value)}
+                      onChange={(e) => { handleSkillChange(currentIndex + index, e.target.value); }}
                       label="Skill"
                       name="skill"
                     />
                   </FormControl>
-                  <IconButton onClick={() => deleteSkill(currentIndex + index)} color="error" sx={{ ml: 1 }}>
+                  <IconButton onClick={() => { deleteSkill(currentIndex + index); }} color="error" sx={{ ml: 1 }}>
                     <DeleteIcon />
                   </IconButton>
                 </Box>

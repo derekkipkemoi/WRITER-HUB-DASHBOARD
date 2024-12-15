@@ -1,5 +1,43 @@
-"use client";
+'use client';
+
 import React from 'react';
+import CloseIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DescriptionIcon from '@mui/icons-material/Description';
+import DownloadIcon from '@mui/icons-material/Download';
+import RevisionIcon from '@mui/icons-material/DriveFileRenameOutline';
+import EditIcon from '@mui/icons-material/Edit';
+import EventIcon from '@mui/icons-material/Event';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import UploadIcon from '@mui/icons-material/Upload';
+import Visibility from '@mui/icons-material/Visibility';
+import {
+  Button,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  LinearProgress,
+  MenuItem,
+  Modal,
+  Paper,
+  Radio,
+  RadioGroup,
+  Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
@@ -9,29 +47,9 @@ import ListItem from '@mui/material/ListItem';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemText from '@mui/material/ListItemText';
 import dayjs from 'dayjs';
-import {
-  Button, Chip,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Typography, Grid, IconButton, Modal, Tooltip, Select, MenuItem, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, LinearProgress, Radio, RadioGroup, FormControlLabel
-} from '@mui/material';
-import Visibility from '@mui/icons-material/Visibility';
-import DownloadIcon from '@mui/icons-material/Download';
-import EditIcon from '@mui/icons-material/Edit';
-import UploadIcon from '@mui/icons-material/Upload';
-import EventIcon from '@mui/icons-material/Event';
-import CloseIcon from '@mui/icons-material/Close';
-import DeleteIcon from '@mui/icons-material/Delete';
-import RevisionIcon from '@mui/icons-material/DriveFileRenameOutline';
-import { OrderFileType, OrderObjectType } from '@/types/order';
+
+import { type OrderFileType, type OrderObjectType } from '@/types/order';
 import { orderClient } from '@/lib/order/client';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-import DescriptionIcon from '@mui/icons-material/Description';
 
 const style = {
   position: 'absolute' as const,
@@ -51,7 +69,6 @@ interface LatestOrdersProps {
   title: string;
 }
 
-
 export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProps): React.JSX.Element {
   const [selectedOrder, setSelectedOrder] = React.useState<OrderObjectType | null>(null);
   const [open, setOpen] = React.useState(false);
@@ -65,14 +82,13 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
   const [uploadSuccess, setUploadSuccess] = React.useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const [orderToDelete, setOrderToDelete] = React.useState<string | null>(null);
-  const [isPending, setIsPending] = React.useState(false)
+  const [isPending, setIsPending] = React.useState(false);
   const [selectedDownloadFile, setSelectedDownloadFile] = React.useState<string>('');
   const completedFiles = selectedOrder?.completedFiles ?? [];
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedDownloadFile(event.target.value);
   };
-
 
   const handleRevisionOpen = (order: OrderObjectType) => {
     setSelectedOrder(order);
@@ -85,11 +101,11 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
 
   const handleRevisionSubmit = async () => {
     if (selectedOrder) {
-      setIsPending(true)
-      const { message } = await orderClient.updateOrderStatus(selectedOrder!!.id, "Revision")
+      setIsPending(true);
+      const { message } = await orderClient.updateOrderStatus(selectedOrder.id, 'Revision');
       if (message) {
-        updateHappened(true)
-        setIsPending(false)
+        updateHappened(true);
+        setIsPending(false);
         setRevisionModalOpen(false);
       }
     }
@@ -116,11 +132,11 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
 
   const handleEditSubmit = async () => {
     if (selectedOrder) {
-      setIsPending(true)
-      const { message } = await orderClient.updateOrderStatus(selectedOrder!!.id, status)
+      setIsPending(true);
+      const { message } = await orderClient.updateOrderStatus(selectedOrder.id, status);
       if (message) {
-        updateHappened(true)
-        setIsPending(false)
+        updateHappened(true);
+        setIsPending(false);
         setEditModalOpen(false);
       }
     }
@@ -128,7 +144,7 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
 
   const handleUploadOpen = (order: OrderObjectType) => {
     setSelectedOrder(order);
-    setUploadSuccess(false)
+    setUploadSuccess(false);
     setUploadModalOpen(true);
   };
 
@@ -139,27 +155,26 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
   const handleFileUpload = async () => {
     if (!file) return;
     setUploading(true);
-    setIsPending(false)
+    setIsPending(false);
     const formData = new FormData();
     formData.append('file', file);
     formData.append('name', file.name);
-    formData.append('description', "User resume file");
+    formData.append('description', 'User resume file');
     if (file) {
-      const { message } = await orderClient.uploadedCompletedFile(selectedOrder!!.id, formData);
+      const { message } = await orderClient.uploadedCompletedFile(selectedOrder!.id, formData);
       if (message) {
         updateHappened(true); // Notify that the resume was successfully uploaded
-        setIsPending(false)
-        setUploading(false)
-        setUploadSuccess(true)
-        setFile(null)
+        setIsPending(false);
+        setUploading(false);
+        setUploadSuccess(true);
+        setFile(null);
       }
-
     }
   };
 
   const handleDownloadOpen = (order: OrderObjectType) => {
     setSelectedOrder(order);
-    console.log("Order Selected", order)
+    console.log('Order Selected', order);
     setDownloadModalOpen(true);
   };
 
@@ -168,12 +183,12 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
   };
 
   const confirmDownload = async () => {
-    setIsPending(true)
-    console.log("File Name", selectedDownloadFile)
-    const { fileUrl } = await orderClient.downloadCompletedFile(selectedOrder!!.id, selectedDownloadFile)
+    setIsPending(true);
+    console.log('File Name', selectedDownloadFile);
+    const { fileUrl } = await orderClient.downloadCompletedFile(selectedOrder!.id, selectedDownloadFile);
     if (fileUrl) {
-      updateHappened(true)
-      setIsPending(false)
+      updateHappened(true);
+      setIsPending(false);
       setDownloadModalOpen(false);
       setSelectedOrder(null);
       window.open(fileUrl, '_blank');
@@ -186,11 +201,11 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
   };
 
   const confirmDelete = async () => {
-    setIsPending(true)
-    const { message } = await orderClient.deleteOrder(orderToDelete!!)
+    setIsPending(true);
+    const { message } = await orderClient.deleteOrder(orderToDelete!);
     if (message) {
-      updateHappened(true)
-      setIsPending(false)
+      updateHappened(true);
+      setIsPending(false);
       setDeleteDialogOpen(false);
       setOrderToDelete(null);
     }
@@ -238,13 +253,26 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
                 return (
                   <ListItem divider={index < orders.length - 1} key={order.id} sx={{ alignItems: 'flex-start' }}>
                     <ListItemAvatar>
-                      <Box component="img" src='/assets/cv.png' sx={{ borderRadius: 1, height: '40px', width: '40px' }} />
+                      <Box
+                        component="img"
+                        src="/assets/cv.png"
+                        sx={{ borderRadius: 1, height: '40px', width: '40px' }}
+                      />
                     </ListItemAvatar>
                     <Grid container direction="column" sx={{ marginLeft: 0 }}>
                       <Grid item xs={12}>
                         <Typography component="span" variant="body1" sx={{ color: '#4e36f5', display: 'inline' }}>
                           {order.package.title}
-                          <Chip label={order.status} size="small" sx={{ padding: 0, marginLeft: '5px', color: 'white', backgroundColor: getStatusColor(order.status) }} />
+                          <Chip
+                            label={order.status}
+                            size="small"
+                            sx={{
+                              padding: 0,
+                              marginLeft: '5px',
+                              color: 'white',
+                              backgroundColor: getStatusColor(order.status),
+                            }}
+                          />
                         </Typography>
                       </Grid>
                       <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center' }}>
@@ -262,34 +290,63 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
                       </Grid>
                       <Grid item xs={12} sx={{ display: 'flex', gap: 1 }}>
                         <Tooltip title="View Order">
-                          <IconButton onClick={() => handleView(order)} color="primary">
+                          <IconButton
+                            onClick={() => {
+                              handleView(order);
+                            }}
+                            color="primary"
+                          >
                             <Visibility />
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Download">
-                          <IconButton color="primary" onClick={() => handleDownloadOpen(order)}>
+                          <IconButton
+                            color="primary"
+                            onClick={() => {
+                              handleDownloadOpen(order);
+                            }}
+                          >
                             <DownloadIcon />
                           </IconButton>
                         </Tooltip>
+
                         <Tooltip title="Request Revision">
-                          <IconButton color="primary" onClick={() => handleRevisionOpen(order)}>
-                            <RevisionIcon />
-                          </IconButton>
+                          {order.status === 'Complete' ? (
+                            <IconButton
+                              color="primary"
+                              onClick={() => {
+                                handleRevisionOpen(order);
+                              }}
+                            >
+                              <RevisionIcon />
+                            </IconButton>
+                          ) : (
+                            <div />
+                          )}
                         </Tooltip>
-                        <Tooltip title="Edit">
+                        {/* <Tooltip title="Edit">
                           <IconButton color="primary" onClick={() => handleEditOpen(order)}>
                             <EditIcon />
                           </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Upload">
+                        </Tooltip> */}
+                        {/* <Tooltip title="Upload">
                           <IconButton color="primary" onClick={() => handleUploadOpen(order)}>
                             <UploadIcon />
                           </IconButton>
-                        </Tooltip>
+                        </Tooltip> */}
                         <Tooltip title="Delete">
-                          <IconButton color="error" onClick={() => handleDelete(order.id)}>
-                            <DeleteIcon />
-                          </IconButton>
+                          {order.status === 'Complete' || order.status === 'Pending Payment' ? (
+                            <IconButton
+                              color="error"
+                              onClick={() => {
+                                handleDelete(order.id);
+                              }}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          ) : (
+                            <div />
+                          )}
                         </Tooltip>
                       </Grid>
                     </Grid>
@@ -298,7 +355,9 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
               })}
             </List>
           ) : (
-            <Typography sx={{ padding: 4 }} variant="body1">No orders available</Typography>
+            <Typography sx={{ padding: 4 }} variant="body1">
+              No orders available
+            </Typography>
           )}
         </List>
         <Divider />
@@ -317,7 +376,7 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
               <CloseIcon />
             </IconButton>
           </Grid>
-          {selectedOrder && (
+          {selectedOrder ? (
             <>
               <Typography id="order-modal-title" variant="h6" component="h2">
                 Order Details
@@ -326,48 +385,70 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
                 <Table>
                   <TableHead sx={{ backgroundColor: 'primary.main', color: 'primary.contrastText' }}>
                     <TableRow>
-                      <TableCell><strong>Field</strong></TableCell>
-                      <TableCell><strong>Details</strong></TableCell>
+                      <TableCell>
+                        <strong>Field</strong>
+                      </TableCell>
+                      <TableCell>
+                        <strong>Details</strong>
+                      </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     <TableRow>
-                      <TableCell><strong>Order ID</strong></TableCell>
+                      <TableCell>
+                        <strong>Order ID</strong>
+                      </TableCell>
                       <TableCell>{selectedOrder.id}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell><strong>Has Cover Letter</strong></TableCell>
+                      <TableCell>
+                        <strong>Has Cover Letter</strong>
+                      </TableCell>
                       <TableCell>{selectedOrder.requireCoverLetter ? 'Yes' : 'No'}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell><strong>Has LinkedIn Optimization</strong></TableCell>
+                      <TableCell>
+                        <strong>Has LinkedIn Optimization</strong>
+                      </TableCell>
                       <TableCell>{selectedOrder.requireLinkedInOptimization ? 'Yes' : 'No'}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell><strong>Status</strong></TableCell>
+                      <TableCell>
+                        <strong>Status</strong>
+                      </TableCell>
                       <TableCell>{selectedOrder.status}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell><strong>Template</strong></TableCell>
-                      <TableCell>{selectedOrder.template ? selectedOrder.template.name : "No Template"}</TableCell>
+                      <TableCell>
+                        <strong>Template</strong>
+                      </TableCell>
+                      <TableCell>{selectedOrder.template ? selectedOrder.template.name : 'No Template'}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell><strong>Uploaded File</strong></TableCell>
-                      <TableCell>{selectedOrder.resume ? selectedOrder.resume.name : "No Files Uploaded"}</TableCell>
+                      <TableCell>
+                        <strong>Uploaded File</strong>
+                      </TableCell>
+                      <TableCell>{selectedOrder.resume ? selectedOrder.resume.name : 'No Files Uploaded'}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell><strong>Complete Files</strong></TableCell>
-                      <TableCell><strong>{selectedOrder.completedFiles.length}</strong></TableCell>
+                      <TableCell>
+                        <strong>Complete Files</strong>
+                      </TableCell>
+                      <TableCell>
+                        <strong>{selectedOrder.completedFiles.length}</strong>
+                      </TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell><strong>Date</strong></TableCell>
+                      <TableCell>
+                        <strong>Date</strong>
+                      </TableCell>
                       <TableCell>{dayjs(selectedOrder.date).format('MMM D, YYYY')}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
               </TableContainer>
             </>
-          )}
+          ) : null}
         </Box>
       </Modal>
 
@@ -379,9 +460,7 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
         aria-describedby="edit-status-modal-description"
       >
         <Box sx={style}>
-          {
-            isPending && <LinearProgress sx={{ width: '100%', }} />
-          }
+          {isPending ? <LinearProgress sx={{ width: '100%' }} /> : null}
           <Grid container justifyContent="flex-end">
             <IconButton onClick={handleEditClose}>
               <CloseIcon />
@@ -394,7 +473,9 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
             <Grid item>
               <Select
                 value={status}
-                onChange={(e) => setStatus(e.target.value)}
+                onChange={(e) => {
+                  setStatus(e.target.value);
+                }}
                 fullWidth
               >
                 <MenuItem value="Pending">Pending</MenuItem>
@@ -404,12 +485,7 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
               </Select>
             </Grid>
             <Grid item>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleEditSubmit}
-                fullWidth
-              >
+              <Button variant="contained" color="primary" onClick={handleEditSubmit} fullWidth>
                 Save Changes
               </Button>
             </Grid>
@@ -425,9 +501,7 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
         aria-describedby="upload-modal-description"
       >
         <Box sx={style}>
-          {
-            isPending && <LinearProgress sx={{ width: '100%', }} />
-          }
+          {isPending ? <LinearProgress sx={{ width: '100%' }} /> : null}
           <Grid container justifyContent="flex-end">
             <IconButton onClick={handleUploadClose}>
               <CloseIcon />
@@ -440,7 +514,9 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
             <Grid item>
               <input
                 type="file"
-                onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
+                onChange={(e) => {
+                  setFile(e.target.files ? e.target.files[0] : null);
+                }}
               />
             </Grid>
             <Grid item>
@@ -457,7 +533,7 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
             {uploadSuccess !== null && (
               <Grid item>
                 <Typography color={uploadSuccess ? 'green' : 'red'}>
-                  {uploadSuccess && 'File uploaded successfully!'}
+                  {uploadSuccess ? 'File uploaded successfully!' : null}
                 </Typography>
               </Grid>
             )}
@@ -473,9 +549,7 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
         aria-describedby="download-modal-description"
       >
         <Box sx={style}>
-          {
-            isPending && <LinearProgress sx={{ width: '100%', }} />
-          }
+          {isPending ? <LinearProgress sx={{ width: '100%' }} /> : null}
           <Grid container justifyContent="flex-end">
             <IconButton onClick={handleDownloadClose}>
               <CloseIcon />
@@ -495,11 +569,10 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
                     control={<Radio />}
                     label={
                       <>
-                        {item.name}  {item.name.endsWith('.pdf') || item.name.endsWith('.docx') ? (
-                          renderIcon(item.name)
-                        ) : (
-                          item.description
-                        )}
+                        {item.name}{' '}
+                        {item.name.endsWith('.pdf') || item.name.endsWith('.docx')
+                          ? renderIcon(item.name)
+                          : item.description}
                       </>
                     }
                   />
@@ -528,7 +601,6 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
         </Box>
       </Modal>
 
-
       {/* Request Revision Modal */}
       <Modal
         open={revisionModalOpen}
@@ -537,15 +609,13 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
         aria-describedby="revision-modal-description"
       >
         <Box sx={style}>
-          {
-            isPending && <LinearProgress sx={{ width: '100%', }} />
-          }
+          {isPending ? <LinearProgress sx={{ width: '100%' }} /> : null}
           <Grid container justifyContent="flex-end">
             <IconButton onClick={handleRevisionClose}>
               <CloseIcon />
             </IconButton>
           </Grid>
-          {selectedOrder && (
+          {selectedOrder ? (
             <>
               <Typography id="revision-modal-title" variant="h6" component="h2">
                 Request Revision
@@ -553,36 +623,21 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
               <Typography id="revision-modal-description" sx={{ mt: 2 }}>
                 Are you sure you want to request a revision for this order?
               </Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleRevisionSubmit}
-                sx={{ mt: 2 }}
-                fullWidth
-              >
+              <Button variant="contained" color="primary" onClick={handleRevisionSubmit} sx={{ mt: 2 }} fullWidth>
                 Confirm Revision Request
               </Button>
             </>
-          )}
+          ) : null}
         </Box>
       </Modal>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={cancelDelete}
-      >
+      <Dialog open={deleteDialogOpen} onClose={cancelDelete}>
         <DialogTitle>Confirm Deletion</DialogTitle>
-        <DialogContent>
-          Are you sure you want to delete this order?
-        </DialogContent>
-        {
-          isPending && <LinearProgress sx={{ width: '100%', }} />
-        }
+        <DialogContent>Are you sure you want to delete this order?</DialogContent>
+        {isPending ? <LinearProgress sx={{ width: '100%' }} /> : null}
         <DialogActions>
-          <Button onClick={cancelDelete}>
-            Cancel
-          </Button>
+          <Button onClick={cancelDelete}>Cancel</Button>
           <Button onClick={confirmDelete} color="error">
             Confirm
           </Button>
@@ -591,4 +646,3 @@ export function LatestOrders({ orders, updateHappened, title }: LatestOrdersProp
     </>
   );
 }
-

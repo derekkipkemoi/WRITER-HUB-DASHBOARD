@@ -13,7 +13,7 @@ import { TrendingUpOutlined } from '@mui/icons-material';
 
 
 export interface BudgetProps {
-  label: String;
+  label: string;
   sx?: SxProps;
   value: string;
 }

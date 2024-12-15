@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import RouterLink from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
@@ -20,6 +20,7 @@ import { navIcons } from './nav-icons';
 
 export function SideNav(): React.JSX.Element {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <Box
@@ -86,27 +87,22 @@ export function SideNav(): React.JSX.Element {
             Need a High Quality CV or Cover Letter?
           </Typography>
           <Typography color="var(--mui-palette-neutral-400)" variant="body2">
-            Get Now.
+            Get One Now.
           </Typography>
         </div>
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <Box
-            component="img"
-            alt="Pro version"
-            src="/assets/cv.png"
-            sx={{ height: 'auto', width: '160px' }}
-          />
+          <Box component="img" alt="Pro version" src="/assets/cv.png" sx={{ height: 'auto', width: '160px' }} />
         </Box>
         <Button
-          component="a"
+          onClick={() => {
+            router.push(paths.resume.resumePricing);
+          }}
           endIcon={<ArrowSquareUpRightIcon fontSize="var(--icon-fontSize-md)" />}
           fullWidth
-          href="https://material-kit-pro-react.devias.io/"
           sx={{ mt: 2 }}
-          target="_blank"
           variant="contained"
         >
-          Start Now
+          Get Started Now
         </Button>
       </Stack>
     </Box>

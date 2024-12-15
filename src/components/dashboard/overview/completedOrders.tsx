@@ -12,7 +12,7 @@ import { File as FileIcon } from '@phosphor-icons/react/dist/ssr';
 
 
 export interface BudgetProps {
-  label: String;
+  label: string;
   sx?: SxProps;
   value: string;
 }

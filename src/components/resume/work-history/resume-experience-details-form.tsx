@@ -100,14 +100,12 @@ export const ResumeExperienceDetailsForm: React.FC<ResumeExperienceDetailsFormPr
   return (
     <Box sx={{ position: 'relative', padding: '16px' }}>
       {/* Show progress bar when pending */}
-      {isPending && (
-        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '100%', zIndex: 1000 }}>
+      {isPending ? <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '100%', zIndex: 1000 }}>
           <Typography variant="h6" align="center" gutterBottom>
             Submitting...
           </Typography>
           <LinearProgress />
-        </Box>
-      )}
+        </Box> : null}
 
       <form onSubmit={handleSubmit(submitExperience)}>
         <Grid container spacing={3}>
@@ -118,12 +116,10 @@ export const ResumeExperienceDetailsForm: React.FC<ResumeExperienceDetailsFormPr
                 name="employer"
                 control={control}
                 render={({ field }) => (
-                  <OutlinedInput {...field} label="Employer Name" error={!!errors.employer} />
+                  <OutlinedInput {...field} label="Employer Name" error={Boolean(errors.employer)} />
                 )}
               />
-              {errors.employer && (
-                <FormHelperText error>{errors.employer.message}</FormHelperText>
-              )}
+              {errors.employer ? <FormHelperText error>{errors.employer.message}</FormHelperText> : null}
             </FormControl>
           </Grid>
           <Grid item md={6} xs={12}>
@@ -133,12 +129,10 @@ export const ResumeExperienceDetailsForm: React.FC<ResumeExperienceDetailsFormPr
                 name="jobTitle"
                 control={control}
                 render={({ field }) => (
-                  <OutlinedInput {...field} label="Job Title" error={!!errors.jobTitle} />
+                  <OutlinedInput {...field} label="Job Title" error={Boolean(errors.jobTitle)} />
                 )}
               />
-              {errors.jobTitle && (
-                <FormHelperText error>{errors.jobTitle.message}</FormHelperText>
-              )}
+              {errors.jobTitle ? <FormHelperText error>{errors.jobTitle.message}</FormHelperText> : null}
             </FormControl>
           </Grid>
           <Grid item md={6} xs={12}>
@@ -151,10 +145,10 @@ export const ResumeExperienceDetailsForm: React.FC<ResumeExperienceDetailsFormPr
                     <DatePicker
                       label="Select Start Date *"
                       value={field.value ? dayjs(field.value) : null}
-                      onChange={(date) => field.onChange(date ? date.format('YYYY-MM-DD') : '')}
+                      onChange={(date) => { field.onChange(date ? date.format('YYYY-MM-DD') : ''); }}
                       slotProps={{
                         textField: {
-                          error: !!errors.startDate,
+                          error: Boolean(errors.startDate),
                           helperText: errors.startDate?.message,
                         },
                       }}
@@ -174,11 +168,11 @@ export const ResumeExperienceDetailsForm: React.FC<ResumeExperienceDetailsFormPr
                     <DatePicker
                       label="Select End Date"
                       value={workingHere ? null : field.value ? dayjs(field.value) : null}
-                      onChange={(date) => field.onChange(date ? date.format('YYYY-MM-DD') : '')}
+                      onChange={(date) => { field.onChange(date ? date.format('YYYY-MM-DD') : ''); }}
                       disabled={workingHere}
                       slotProps={{
                         textField: {
-                          error: !!errors.endDate,
+                          error: Boolean(errors.endDate),
                           helperText: errors.endDate?.message,
                         },
                       }}
@@ -235,9 +229,7 @@ export const ResumeExperienceDetailsForm: React.FC<ResumeExperienceDetailsFormPr
                   />
                 )}
               />
-              {errors.jobDescription && (
-                <FormHelperText error>{errors.jobDescription.message}</FormHelperText>
-              )}
+              {errors.jobDescription ? <FormHelperText error>{errors.jobDescription.message}</FormHelperText> : null}
             </FormControl>
           </Grid>
           <Grid item md={12} xs={12}>

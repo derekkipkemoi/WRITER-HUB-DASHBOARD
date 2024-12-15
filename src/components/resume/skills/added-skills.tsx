@@ -59,10 +59,8 @@ export default function AddedSkills() {
                 </Button>
             )}
 
-            {showSkills && (
-                <Box display="flex" justifyContent="center" flexWrap="wrap" mb={3} position="relative">
-                    {showSkills && skills.length > 0 && (
-                        <IconButton
+            {showSkills ? <Box display="flex" justifyContent="center" flexWrap="wrap" mb={3} position="relative">
+                    {showSkills && skills.length > 0 ? <IconButton
                             aria-label="close"
                             onClick={toggleSkillsVisibility}
                             sx={{
@@ -77,8 +75,7 @@ export default function AddedSkills() {
                             }}
                         >
                             <CloseIcon />
-                        </IconButton>
-                    )}
+                        </IconButton> : null}
                     {skills.map((skillItem) => (
                         <Box key={skillItem.id} display="flex" alignItems="center">
                             <Button
@@ -123,8 +120,7 @@ export default function AddedSkills() {
                             </Button>
                         </Box>
                     ))}
-                </Box>
-            )}
+                </Box> : null}
         </Box>
     );
 }

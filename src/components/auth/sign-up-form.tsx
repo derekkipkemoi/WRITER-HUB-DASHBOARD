@@ -4,6 +4,7 @@ import * as React from 'react';
 import RouterLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { LinearProgress } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
@@ -14,20 +15,17 @@ import InputLabel from '@mui/material/InputLabel';
 import Link from '@mui/material/Link';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import { Eye as EyeIcon } from '@phosphor-icons/react/dist/ssr/Eye';
 import { EyeSlash as EyeSlashIcon } from '@phosphor-icons/react/dist/ssr/EyeSlash';
-import Typography from '@mui/material/Typography';
 import { Controller, useForm } from 'react-hook-form';
 import { z as zod } from 'zod';
 
 import { paths } from '@/paths';
 import { authClient } from '@/lib/auth/client';
 import { useUser } from '@/hooks/use-user';
-import { LinearProgress } from '@mui/material';
 
-const phoneRegex = new RegExp(
-  /^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/
-);
+const phoneRegex = new RegExp(/^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/);
 
 const schema = zod.object({
   firstName: zod.string().min(1, { message: 'First name is required' }),
@@ -40,7 +38,14 @@ const schema = zod.object({
 
 type Values = zod.infer<typeof schema>;
 
-const defaultValues = { firstName: '', lastName: '', phone: '', email: '', password: '', terms: false } satisfies Values;
+const defaultValues = {
+  firstName: '',
+  lastName: '',
+  phone: '',
+  email: '',
+  password: '',
+  terms: false,
+} satisfies Values;
 
 export function SignUpForm(): React.JSX.Element {
   const router = useRouter();
@@ -60,9 +65,6 @@ export function SignUpForm(): React.JSX.Element {
   const onSubmit = React.useCallback(
     async (values: Values): Promise<void> => {
       setIsPending(true);
-
-      console.log("values", values)
-
       const { error } = await authClient.signUp(values);
 
       if (error) {
@@ -70,10 +72,8 @@ export function SignUpForm(): React.JSX.Element {
         setIsPending(false);
         return;
       }
-
       // Refresh the auth state
       await checkSession?.();
-
       // UserProvider, for this case, will not refresh the router
       // After refresh, GuestGuard will handle the redirect
       router.refresh();
@@ -91,9 +91,7 @@ export function SignUpForm(): React.JSX.Element {
             Sign in
           </Link>
         </Typography>
-        {
-          isPending && <LinearProgress />
-        }
+        {isPending ? <LinearProgress /> : null}
       </Stack>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={2}>

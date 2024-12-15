@@ -13,10 +13,10 @@ import {
     FormControlLabel,
     FormControl,
 } from '@mui/material';
-import { OrderObjectType } from '@/types/order';
+import { type OrderObjectType } from '@/types/order';
 import { orderClient } from '@/lib/order/client';
 
-const CoverLetter = () => {
+function CoverLetter() {
     const [order, setOrder] = useState<OrderObjectType | null>(null);
     const [requireCoverLetter, setRequireCoverLetter] = useState<boolean>(false);
     const [coverLetterDetails, setCoverLetterDetails] = useState<string>('');
@@ -119,12 +119,11 @@ const CoverLetter = () => {
                             label="Yes, I Need LinkedIn Profile Optimization"
                         />
                         {
-                            requireLinkedInOptimization &&
-                            <Box mt={2}>
+                            requireLinkedInOptimization ? <Box mt={2}>
                                 <Typography variant="subtitle1" sx={{ mb: 1 }}>
                                     Provide LinkedIn URL
                                 </Typography>
-                                <FormControl fullWidth error={!!urlIsError}>
+                                <FormControl fullWidth error={Boolean(urlIsError)}>
                                     <OutlinedInput
                                         fullWidth
                                         value={linkedInUrl}
@@ -137,10 +136,10 @@ const CoverLetter = () => {
                                         sx={{ borderColor: 'primary.main' }}
                                     />
                                     {
-                                        urlIsError && <FormHelperText>Valid LinkedIn URL required</FormHelperText>
+                                        urlIsError ? <FormHelperText>Valid LinkedIn URL required</FormHelperText> : null
                                     }
                                 </FormControl>
-                            </Box>
+                            </Box> : null
                         }
 
                     </Box>
@@ -150,12 +149,11 @@ const CoverLetter = () => {
                             label="Yes, I Need a Cover Letter"
                         />
                         {
-                            requireCoverLetter &&
-                            <Box mt={2}>
+                            requireCoverLetter ? <Box mt={2}>
                                 <Typography variant="subtitle1" sx={{ mb: 1 }}>
                                     Cover Letter Details
                                 </Typography>
-                                <FormControl fullWidth error={!!coverLetterIsError}>
+                                <FormControl fullWidth error={Boolean(coverLetterIsError)}>
                                     <OutlinedInput
                                         fullWidth
                                         value={coverLetterDetails}
@@ -169,14 +167,13 @@ const CoverLetter = () => {
                                         sx={{ borderColor: 'primary.main' }}
                                     />
                                     {
-                                        coverLetterIsError && <FormHelperText>Cover letter details are required</FormHelperText>
+                                        coverLetterIsError ? <FormHelperText>Cover letter details are required</FormHelperText> : null
                                     }
                                 </FormControl>
-                            </Box>
+                            </Box> : null
                         }
                     </Box>
-                    {showSaveButton && (
-                        <Grid container spacing={2} justifyContent="flex-end">
+                    {showSaveButton ? <Grid container spacing={2} justifyContent="flex-end">
                             <Grid item>
                                 <Button
                                     onClick={onSubmit}
@@ -186,12 +183,11 @@ const CoverLetter = () => {
                                     Save Changes
                                 </Button>
                             </Grid>
-                        </Grid>
-                    )}
+                        </Grid> : null}
                 </CardContent>
             </Card>
         </form>
     );
-};
+}
 
 export default CoverLetter;

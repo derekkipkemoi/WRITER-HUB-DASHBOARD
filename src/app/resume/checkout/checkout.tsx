@@ -1,26 +1,31 @@
-'use client'
-import React, { useState, useEffect } from 'react';
-import { format } from 'date-fns';
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Box,
+  Button,
   Card,
   CardContent,
-  Typography,
+  CardHeader,
+  Divider,
   Grid,
-  Button,
-  Modal,
-  IconButton,
-  List, ListItem, ListItemIcon, ListItemText,
-  Divider
+  LinearProgress,
+  TextField,
+  Typography,
 } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
-import CloseIcon from '@mui/icons-material/Close';
-import { useRouter } from 'next/navigation';
-import { orderClient } from '@/lib/order/client';
-import { OrderObjectType } from '@/types/order';
+import { format } from 'date-fns';
+
+import { type OrderObjectType } from '@/types/order';
+import { orderClient, type PaymentRequestSTK } from '@/lib/order/client';
+
 import 'intasend-inlinejs-sdk';
-import { paths } from '@/paths';
+
+import { type User } from '@/types/user';
+import { authClient } from '@/lib/auth/client';
+
+import OrderDetailsModal from './order-details-modal';
+import SecurePaymentBadge from './secureBadge';
 
 declare global {
   interface Window {
@@ -28,43 +33,44 @@ declare global {
   }
 }
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  border: '1px solid #000',
-  boxShadow: 24,
-  p: 4,
-  borderRadius: '8px',
-};
-
-const CheckoutForm = () => {
+function CheckoutForm() {
   const router = useRouter();
+  const [isPending, setIsPending] = useState(false);
   const orderId = localStorage.getItem('orderId');
   const [order, setOrder] = useState<OrderObjectType | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+
+  const checkout = async () => {
+    if (!order?.package) return;
+    if (!user) return;
+    const amount = Math.floor(Number(order.package.price));
+    const paymentRequest: PaymentRequestSTK = {
+      first_name: user.firstName,
+      last_name: user.lastName,
+      email: user.email,
+      host: 'https://yourwebsite.com', // You can set this as needed
+      amount, // Amount should be fetched or calculated as per your business logic
+      phone_number: user.phone,
+      api_ref: 'test', // Provide a dynamic API ref as needed
+      redirect_url: 'http://localhost:3000/resume/thankyou', // Redirect URL after payment
+    };
+    setIsPending(true);
+
+    const { paymentUrl } = await orderClient.requestMpesaSTKPaymentasync(paymentRequest);
+    if (paymentUrl) {
+      router.push(paymentUrl);
+    }
+  };
 
   useEffect(() => {
-    const newIntaSend = new window.IntaSend({
-      publicAPIKey: "ISPubKey_test_039f5b76-80f8-4870-96af-edcfae1c340c",
-      live: false //or true for live environment
-    });
-    newIntaSend
-      .on("COMPLETE", (response: any) => {
-        console.log("COMPLETE:", response);
-        router.push(paths.dashboard.overview);
-      })
-      .on("FAILED", (response: any) => {
-        console.log("FAILED", response);
-      })
-      .on("IN-PROGRESS", () => { console.log("IN-PROGRESS ..."); });
-
+    // Fetch order data
     const fetchOrder = async () => {
       if (orderId) {
         const { data } = await orderClient.getOrder(orderId);
-        console.log("Data", data);
+        const returned = await authClient.getUser();
+        if (returned.data) {
+          setUser(user || returned.data);
+        }
         setOrder(data || null);
       }
     };
@@ -79,116 +85,179 @@ const CheckoutForm = () => {
   };
 
   const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   if (!order) return null; // Guard clause to ensure `order` is loaded
 
   return (
-    <Box>
-      <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1 }}>
+    <Box sx={{ padding: 2 }}>
+      <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1, color: 'primary.main' }}>
         Payment and checkout
       </Typography>
       <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-       Confirm payment and checkout
+        Confirm payment and checkout to complete your order.
       </Typography>
-      <Divider sx={{ height: '5px', borderColor: 'primary.main', mb: 3 }} />
+      {isPending ? <LinearProgress sx={{ width: '100%' }} /> : null}
+      <Divider sx={{ height: '3px', borderColor: 'primary.main', mb: 2 }} />
 
-      <Grid container spacing={2} justifyContent="center">
-        <Grid item xs={12} md={10}>
-          <Card variant="outlined">
+      <Grid container justifyContent="center">
+        {/* User Details Section */}
+        <Grid xs={12} md={4} paddingTop={1.5}>
+          <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: 3 }}>
+            <CardHeader
+              title="Payment Details"
+              sx={{
+                backgroundColor: 'primary.main',
+                color: 'white',
+                borderRadius: '10px 10px 0 0',
+                padding: '16px 24px',
+              }}
+            />
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Order Details
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={6}>
-                  <Typography variant="subtitle1"><strong>Order ID</strong></Typography>
-                  <Typography variant="body2" sx={{ mb: 0 }}>{order.id}</Typography>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Typography variant="subtitle1"><strong>Order Name</strong></Typography>
-                  <Typography variant="body2" sx={{ mb: 0 }}>{order.package.title}</Typography>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Typography variant="subtitle1"><strong>Order Price</strong></Typography>
-                  <Typography variant="body2" sx={{ mb: 0 }}>
-                    {order.package.currency.symbol}{order.package.price}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Typography variant="subtitle1"><strong>Order Date</strong></Typography>
-                  <Typography variant="body2" sx={{ mb: 0 }}>{formatDate(order.date)}</Typography>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Typography variant="subtitle1"><strong>Order Status</strong></Typography>
-                  <Typography variant="body2" sx={{ mb: 0 }}>{order.status}</Typography>
+              <Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    disabled
+                    label="First Name"
+                    variant="outlined"
+                    defaultValue={user?.firstName}
+                    sx={{ mb: 2 }}
+                  />
                 </Grid>
                 <Grid item xs={12}>
-                  <Typography variant="subtitle1"><strong>Order Requirements</strong></Typography>
-                  {order.package.features.map((feature, index) => (
-                    <Typography variant="body2" key={index} sx={{ mb: 0 }}>
-                      - {feature}
-                    </Typography>
-                  ))}
+                  <TextField
+                    fullWidth
+                    disabled
+                    label="Last Name"
+                    variant="outlined"
+                    defaultValue={user?.lastName}
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    disabled
+                    label="Phone Number"
+                    variant="outlined"
+                    defaultValue={user?.phone}
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    disabled
+                    fullWidth
+                    label="Email"
+                    variant="outlined"
+                    defaultValue={user?.email}
+                    sx={{ mb: 2 }}
+                  />
                 </Grid>
               </Grid>
-              <Box display="flex" justifyContent="flex-end">
-                <Button variant="contained" color="secondary" sx={{ mt: 2 }} onClick={handleOpen}>
-                  View More Details
-                </Button>
-              </Box>
             </CardContent>
           </Card>
+        </Grid>
 
-          <Box display="flex" justifyContent="flex-end" mt={3}>
-            <Button className="intaSendPayButton" data-amount={order.package.price} data-currency={order.package.currency} variant="contained" color="primary">
-              Confirm Payments
-            </Button>
-          </Box>
+        {/* Divider Line for Larger Screens */}
+        <Divider
+          orientation="vertical"
+          flexItem
+          sx={{
+            display: { xs: 'none', md: 'block' },
+            mx: 4,
+            height: 'auto',
+            alignSelf: 'stretch',
+            borderWidth: 1,
+          }}
+        />
+
+        {/* Order Details Section */}
+        <Grid xs={12} md={4} paddingTop={1.5}>
+          <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: 3 }}>
+            <CardHeader
+              title="Order Details"
+              sx={{
+                backgroundColor: 'primary.main',
+                color: 'white',
+                borderRadius: '10px 10px 0 0',
+                padding: '16px 24px',
+              }}
+            />
+            <CardContent>
+              <Grid container>
+                <Grid item xs={12} container justifyContent="space-between" alignItems="center">
+                  <Typography variant="subtitle1">ORDER NAME</Typography>
+                  <Typography variant="body2" sx={{ mb: 0 }}>
+                    {order.package.title}
+                  </Typography>
+                </Grid>
+                <Divider variant="middle" sx={{ width: '100%', paddingTop: 1 }} />
+                <Grid item xs={12} container justifyContent="space-between" alignItems="center" paddingTop={2}>
+                  <Typography variant="subtitle1">ORDER DATE</Typography>
+                  <Typography variant="body2" sx={{ mb: 0 }}>
+                    {formatDate(order.date)}
+                  </Typography>
+                </Grid>
+                <Divider variant="middle" sx={{ width: '100%', paddingTop: 1 }} />
+                <Grid item xs={12} container justifyContent="space-between" alignItems="center" paddingTop={2}>
+                  <Typography variant="subtitle1">ORDER STATUS</Typography>
+                  <Typography variant="body2" sx={{ mb: 0 }}>
+                    {order.status}
+                  </Typography>
+                </Grid>
+                <Divider variant="middle" sx={{ width: '100%', paddingTop: 1 }} />
+                <Grid item xs={12} container justifyContent="space-between" alignItems="center" paddingTop={2}>
+                  <Typography variant="subtitle1">ORDER PRICE</Typography>
+                  <Typography variant="h6" sx={{ mb: 0, color: 'primary.main' }}>
+                    <span style={{ marginRight: '8px' }}>{order.package.currency.symbol}</span>
+                    {order.package.price}
+                  </Typography>
+                </Grid>
+                <Divider variant="middle" sx={{ width: '100%', paddingTop: 1 }} />
+                <Grid item xs={12} container justifyContent="center" paddingTop={3.5} paddingBottom={4}>
+                  <Button variant="outlined" color="secondary" onClick={handleOpen}>
+                    View More Order Details
+                  </Button>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
         </Grid>
       </Grid>
 
-      <Modal open={open} onClose={handleClose}>
-        <Box sx={style}>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-            <Typography variant="h6">Order: {order.package.title}</Typography>
-            <IconButton onClick={handleClose}>
-              <CloseIcon />
-            </IconButton>
-          </Box>
-          <List>
-            <ListItem>
-              <ListItemIcon>
-                {order.requireCoverLetter ? <CheckCircleIcon color="success" /> : <CancelIcon color="error" />}
-              </ListItemIcon>
-              <ListItemText primary="Order Has Cover Letter" />
-            </ListItem>
-            <ListItem>
-              <ListItemIcon>
-                {order.requireLinkedInOptimization ? <CheckCircleIcon color="success" /> : <CancelIcon color="error" />}
-              </ListItemIcon>
-              <ListItemText primary="Order Has LinkedIn Optimization" />
-            </ListItem>
-            <ListItem>
-              <ListItemIcon>
-                {order.resume ? <CheckCircleIcon color="success" /> : <CancelIcon color="error" />}
-              </ListItemIcon>
-              <ListItemText primary="Order Has File" />
-            </ListItem>
-            {order.template && (
-              <ListItem>
-                <ListItemText primary="Order Template" secondary={order.template.name} />
-              </ListItem>
-            )}
-            <ListItem>
-              <ListItemText primary="Order Status" secondary={order.status} />
-            </ListItem>
-          </List>
-        </Box>
-      </Modal>
-    </Box >
+      {/* Checkout Button Section */}
+      <Box sx={{ mt: 2, textAlign: 'center' }}>
+        {isPending ? <LinearProgress sx={{ width: '100%' }} /> : null}
+        <Divider sx={{ my: 2, borderWidth: 1 }} />
+
+        <Button
+          onClick={checkout}
+          className="intaSendPayButton"
+          variant="contained"
+          size="large"
+          sx={{
+            backgroundColor: 'warning.main',
+            color: 'black',
+            borderRadius: '25px',
+            '&:hover': {
+              backgroundColor: 'warning.dark',
+            },
+          }}
+        >
+          Proceed To Pay
+        </Button>
+      </Box>
+      <OrderDetailsModal open={open} handleClose={handleClose} order={order} />
+      <SecurePaymentBadge />
+    </Box>
   );
-};
+}
 
 export default CheckoutForm;

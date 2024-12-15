@@ -142,14 +142,12 @@ export const ResumeEducationEditForm: React.FC<ResumeEducationEditFormProps> = (
   return (
     <Box sx={{ position: 'relative', padding: '16px' }}>
       {/* Show progress bar when pending */}
-      {isPending && (
-        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '100%', zIndex: 1000 }}>
+      {isPending ? <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '100%', zIndex: 1000 }}>
           <Typography variant="h6" align="center" gutterBottom>
             Submitting...
           </Typography>
           <LinearProgress />
-        </Box>
-      )}
+        </Box> : null}
 
       <form onSubmit={handleSubmit(submitEducation)}>
         <Grid container spacing={3}>
@@ -160,12 +158,10 @@ export const ResumeEducationEditForm: React.FC<ResumeEducationEditFormProps> = (
                 name="school"
                 control={control}
                 render={({ field }) => (
-                  <OutlinedInput {...field} label="School Name" error={!!errors.school} />
+                  <OutlinedInput {...field} label="School Name" error={Boolean(errors.school)} />
                 )}
               />
-              {errors.school && (
-                <FormHelperText error>{errors.school.message}</FormHelperText>
-              )}
+              {errors.school ? <FormHelperText error>{errors.school.message}</FormHelperText> : null}
             </FormControl>
           </Grid>
           <Grid item md={6} xs={12}>
@@ -175,12 +171,10 @@ export const ResumeEducationEditForm: React.FC<ResumeEducationEditFormProps> = (
                 name="gradeAchieved"
                 control={control}
                 render={({ field }) => (
-                  <OutlinedInput {...field} label="Grade Achieved" error={!!errors.gradeAchieved} />
+                  <OutlinedInput {...field} label="Grade Achieved" error={Boolean(errors.gradeAchieved)} />
                 )}
               />
-              {errors.gradeAchieved && (
-                <FormHelperText error>{errors.gradeAchieved.message}</FormHelperText>
-              )}
+              {errors.gradeAchieved ? <FormHelperText error>{errors.gradeAchieved.message}</FormHelperText> : null}
             </FormControl>
           </Grid>
           <Grid item md={6} xs={12}>
@@ -193,10 +187,10 @@ export const ResumeEducationEditForm: React.FC<ResumeEducationEditFormProps> = (
                     <DatePicker
                       label="Select Start Date *"
                       value={field.value ? dayjs(field.value) : null}
-                      onChange={(date) => field.onChange(date ? date.format('YYYY-MM-DD') : '')}
+                      onChange={(date) => { field.onChange(date ? date.format('YYYY-MM-DD') : ''); }}
                       slotProps={{
                         textField: {
-                          error: !!errors.startDate,
+                          error: Boolean(errors.startDate),
                           helperText: errors.startDate?.message,
                         },
                       }}
@@ -216,11 +210,11 @@ export const ResumeEducationEditForm: React.FC<ResumeEducationEditFormProps> = (
                     <DatePicker
                       label="Select End Date"
                       value={studyingHere ? null : field.value ? dayjs(field.value) : null}
-                      onChange={(date) => field.onChange(date ? date.format('YYYY-MM-DD') : '')}
+                      onChange={(date) => { field.onChange(date ? date.format('YYYY-MM-DD') : ''); }}
                       disabled={studyingHere}
                       slotProps={{
                         textField: {
-                          error: !!errors.endDate,
+                          error: Boolean(errors.endDate),
                           helperText: errors.endDate?.message,
                         },
                       }}

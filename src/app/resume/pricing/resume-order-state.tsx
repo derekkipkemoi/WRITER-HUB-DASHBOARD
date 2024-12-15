@@ -1,7 +1,6 @@
-import { url } from "inspector";
-import { atomWithStorage } from "jotai/utils";
+import { atomWithStorage } from 'jotai/utils';
 
-import { OrderFileType, OrderPackageType, OrderTemplateType, OrderObjectType } from "@/types/order";
+import { type OrderPackageType } from '@/types/order';
 
 // Define the type for the atom's state
 
@@ -12,29 +11,23 @@ import { OrderFileType, OrderPackageType, OrderTemplateType, OrderObjectType } f
 //   description: ""
 // });
 
-
-
 export const OrderPackage = atomWithStorage<OrderPackageType>('orderPackage', {
-  title: "",
-  price: "",
+  title: '',
+  price: '',
   currency: {
-    symbol: "",
-    rate: 0
+    symbol: '',
+    rate: 0,
   },
-  description: "",
+  description: '',
   features: [],
-  orderRevision: 0
+  orderRevision: 0,
 });
-
-
 
 // export const OrderTemplateType = atomWithStorage<OrderTemplateType>('orderTemplate', {
 //   name: "",
 //   url: "",
 //   description: ""
 // });
-
-
 
 // export const OrderObject = atomWithStorage<OrderObjectType>('orderObject', {
 //   userId: "",

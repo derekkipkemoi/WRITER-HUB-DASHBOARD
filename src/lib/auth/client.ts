@@ -1,19 +1,19 @@
 'use client';
 
 import axios from 'axios';
+
 import type { User } from '@/types/user';
 
-function generateToken(): string {
-  const arr = new Uint8Array(12);
-  window.crypto.getRandomValues(arr);
-  return Array.from(arr, (v) => v.toString(16).padStart(2, '0')).join('');
-}
-
+// function generateToken(): string {
+//   const arr = new Uint8Array(12);
+//   window.crypto.getRandomValues(arr);
+//   return Array.from(arr, (v) => v.toString(16).padStart(2, '0')).join('');
+// }
 
 export interface SignUpParams {
   firstName: string;
   lastName: string;
-  phone: String,
+  phone: string;
   email: string;
   password: string;
 }
@@ -31,7 +31,7 @@ export interface UserUpdateParams {
   city?: string;
   country?: string;
   professionalTitle?: string;
-  avatarUrl?: string
+  avatarUrl?: string;
 }
 
 export interface AddWorkHistoryParams {
@@ -56,10 +56,8 @@ export interface AddProfessionalSummary {
   summary?: string;
   github?: string;
   linkedIn?: string;
-  otherWebsite?: string
+  otherWebsite?: string;
 }
-
-
 
 export interface UpdateWorkHistoryParams extends AddWorkHistoryParams {
   id: string; // Add an id field for identifying the work item
@@ -67,7 +65,6 @@ export interface UpdateWorkHistoryParams extends AddWorkHistoryParams {
 export interface UpdateEducationParams extends AddEducationParams {
   id: string; // Add an id field for identifying the education item
 }
-
 
 export interface SignInWithOAuthParams {
   provider: 'google' | 'discord';
@@ -87,7 +84,7 @@ class AuthClient {
     // Make API request
     const response = await axios.post('http://localhost:3010/users/registerUser', params);
 
-    if (response.data.message == "User with similar email already exists!") {
+    if (response.data.message == 'User with similar email already exists!') {
       return { error: response.data.message };
     }
     const token = response?.data?.user?.id;
@@ -103,7 +100,7 @@ class AuthClient {
     // Make API request
     const response = await axios.post('http://localhost:3010/users/loginUser', params);
 
-    if (response.data.message == "Invalid credentials") {
+    if (response.data.message == 'Invalid credentials') {
       return { error: 'Invalid credentials' };
     }
     const token = response?.data?.user?.id;
@@ -125,15 +122,15 @@ class AuthClient {
     if (!id) {
       return { data: null };
     }
-    const response = await axios.post('http://localhost:3010/users/getUser', { id: id });
-    console.log("user", response.data.user)
+    const response = await axios.post('http://localhost:3010/users/getUser', { id });
+    // console.log("user", response.data.user)
     return { data: response?.data?.user ?? null, error: response?.data?.error ?? null };
   }
 
   async updateUser(params: UserUpdateParams): Promise<{ data?: User | null; error?: string }> {
     // Make API request
     const response = await axios.patch('http://localhost:3010/users/updateUser', params);
-    if (response.data.message != "User updated") {
+    if (response.data.message != 'User updated') {
       return { error: 'Failed to update data' };
     }
     return {};
@@ -144,7 +141,7 @@ class AuthClient {
     return {};
   }
 
-  async addWorkHistory(params: AddWorkHistoryParams): Promise<{ data?: | null; error?: string }> {
+  async addWorkHistory(params: AddWorkHistoryParams): Promise<{ data?: null; error?: string }> {
     // Make API request
     const id = localStorage.getItem('id');
     if (!id) {
@@ -160,7 +157,10 @@ class AuthClient {
     return {};
   }
 
-  async updateWorkHistory(workHistoryId: string, params: UpdateWorkHistoryParams): Promise<{ data?: null; error?: string }> {
+  async updateWorkHistory(
+    workHistoryId: string,
+    params: UpdateWorkHistoryParams
+  ): Promise<{ data?: null; error?: string }> {
     const id = localStorage.getItem('id');
     // Check if the user ID exists in local storage
     if (!id) {
@@ -170,13 +170,13 @@ class AuthClient {
       // Make API request with the dynamic user ID and work history ID
       const response = await axios.put(`http://localhost:3010/users/${id}/updateWorkHistory/${workHistoryId}`, params);
       // Optional: Handle specific response messages if needed
-      if (response.data.message !== "Work history updated") {
+      if (response.data.message !== 'Work history updated') {
         return { error: 'Failed to update work history' };
       }
 
       return { data: response.data.workHistory }; // Return updated work history data if needed
     } catch (error) {
-      console.error("Error updating work history:", error);
+      console.error('Error updating work history:', error);
       return { error: 'An error occurred while updating work history' };
     }
   }
@@ -191,16 +191,15 @@ class AuthClient {
       // Make API request with the dynamic user ID and work history ID
       const response = await axios.delete(`http://localhost:3010/users/${id}/deleteWorkHistory/${workHistoryId}`);
       // Optional: Handle specific response messages if needed
-      if (response.data.message !== "Work history deleted") {
+      if (response.data.message !== 'Work history deleted') {
         return { error: 'Failed to delete work history' };
       }
       return { data: null }; // Return null or any data if needed
     } catch (error) {
-      console.error("Error deleting work history:", error);
+      console.error('Error deleting work history:', error);
       return { error: 'An error occurred while deleting work history' };
     }
   }
-
 
   async addEducation(params: AddEducationParams): Promise<{ data?: null; error?: string }> {
     const id = localStorage.getItem('id');
@@ -210,10 +209,10 @@ class AuthClient {
     }
     // Make API request with the dynamic user ID
     const response = await axios.post(`http://localhost:3010/users/${id}/addEducation`, params);
-    console.log(response)
+    // console.log(response);
 
     // Optional: Handle specific response messages if needed
-    if (response.data.message !== "Education added") {
+    if (response.data.message !== 'Education added') {
       return { error: 'Failed to add education' };
     }
 
@@ -232,13 +231,13 @@ class AuthClient {
       const response = await axios.put(`http://localhost:3010/users/${id}/updateEducation/${educationId}`, params);
 
       // Optional: Handle specific response messages if needed
-      if (response.data.message !== "Education updated") {
+      if (response.data.message !== 'Education updated') {
         return { error: 'Failed to update education' };
       }
 
       return { data: response.data.education }; // Return updated education data if needed
     } catch (error) {
-      console.error("Error updating education:", error);
+      console.error('Error updating education:', error);
       return { error: 'An error occurred while updating education' };
     }
   }
@@ -255,13 +254,13 @@ class AuthClient {
       const response = await axios.delete(`http://localhost:3010/users/${id}/deleteEducation/${educationId}`);
 
       // Optional: Handle specific response messages if needed
-      if (response.data.message !== "Education deleted") {
+      if (response.data.message !== 'Education deleted') {
         return { error: 'Failed to delete education' };
       }
 
       return { data: null }; // Return null or any data if needed
     } catch (error) {
-      console.error("Error deleting education:", error);
+      console.error('Error deleting education:', error);
       return { error: 'An error occurred while deleting education' };
     }
   }
@@ -273,25 +272,24 @@ class AuthClient {
       return { error: 'User ID not found in local storage' };
     }
 
-    console.log("skills", skills)
+    // console.log('skills', skills);
 
     try {
       // Make API request with the dynamic user ID
       const response = await axios.post(`http://localhost:3010/users/${id}/addSkills`, { skills });
-      console.log("skills", response)
+      // console.log('skills', response);
 
       // Optional: Handle specific response messages if needed
-      if (response.data.message !== "Skills added successfully.") {
+      if (response.data.message !== 'Skills added successfully.') {
         return { error: 'Failed to add skills' };
       }
 
       return { data: null }; // Return the added skills or any data if needed
     } catch (error) {
-      console.error("Error adding skills:", error);
+      console.error('Error adding skills:', error);
       return { error: 'An error occurred while adding skills' };
     }
   }
-
 
   async deleteSkill(skillId: string): Promise<{ data?: null; error?: string }> {
     const id = localStorage.getItem('id');
@@ -306,17 +304,17 @@ class AuthClient {
       const response = await axios.delete(`http://localhost:3010/users/${id}/skills/${skillId}`);
 
       // Optional: Log the response for debugging
-      console.log("API Response:", response);
+      // console.log('API Response:', response);
 
       // Check for successful response
-      if (response.status !== 200 || response.data.message !== "Skill deleted successfully.") {
+      if (response.status !== 200 || response.data.message !== 'Skill deleted successfully.') {
         return { error: 'Failed to delete skill' };
       }
 
       // Return confirmation or updated skills if needed
       return { data: null }; // Return any data if needed, like remaining skills
     } catch (error) {
-      console.error("Error deleting skill:", error);
+      console.error('Error deleting skill:', error);
       return { error: 'An error occurred while deleting the skill' };
     }
   }
@@ -328,21 +326,23 @@ class AuthClient {
       return { error: 'User ID not found in local storage' };
     }
 
-    console.log("Professional Summary:", professionalSummary);
+    // console.log('Professional Summary:', professionalSummary);
 
     try {
       // Make API request with the dynamic user ID
-      const response = await axios.post(`http://localhost:3010/users/${id}/addProfessionalSummary`, { professionalSummary });
-      console.log("Response:", response);
+      const response = await axios.post(`http://localhost:3010/users/${id}/addProfessionalSummary`, {
+        professionalSummary,
+      });
+      // console.log('Response:', response);
 
       // Optional: Handle specific response messages if needed
-      if (response.data.message !== "Professional summary added successfully.") {
+      if (response.data.message !== 'Professional summary added successfully.') {
         return { error: 'Failed to add professional summary' };
       }
 
       return { data: null }; // Return added data or any additional info if needed
     } catch (error) {
-      console.error("Error adding professional summary:", error);
+      console.error('Error adding professional summary:', error);
       return { error: 'An error occurred while adding professional summary' };
     }
   }
@@ -357,35 +357,28 @@ class AuthClient {
     // Prepare FormData to send the file
     const formData = new FormData();
     formData.append('avatar', file); // Append the file to FormData
-    console.log("File to upload", formData)
+    // console.log('File to upload', formData);
 
     try {
       // Make API request with the dynamic user ID
       const response = await axios.post(`http://localhost:3010/users/${id}/uploadAvatar`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data' // Set appropriate content type for file uploads
-        }
+          'Content-Type': 'multipart/form-data', // Set appropriate content type for file uploads
+        },
       });
-      console.log("Response:", response);
+      // console.log('Response:', response);
 
       // Optional: Handle specific response messages if needed
-      if (response.data.message !== "Avatar uploaded successfully") {
+      if (response.data.message !== 'Avatar uploaded successfully') {
         return { error: 'Failed to upload avatar' };
       }
 
       return { data: null }; // Return added data or any additional info if needed
     } catch (error) {
-      console.error("Error uploading avatar:", error);
+      console.error('Error uploading avatar:', error);
       return { error: 'An error occurred while uploading avatar' };
     }
   }
-
-
-
-
-
-
-
 }
 
 export const authClient = new AuthClient();

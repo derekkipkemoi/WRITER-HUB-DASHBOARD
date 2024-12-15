@@ -30,12 +30,12 @@ export function GuestGuard({ children, currentPage }: GuestGuardProps): React.JS
 
     if (user) {
       logger.debug('[GuestGuard]: User is logged in, redirecting');
-      if(currentPage === "sigin"){
+      if (currentPage === 'sigin') {
         router.replace(paths.dashboard.overview);
-      }else{
-        router.replace(paths.pricing);
+      } else {
+        router.replace(paths.resume.resumePricing);
       }
-      
+
       return;
     }
 

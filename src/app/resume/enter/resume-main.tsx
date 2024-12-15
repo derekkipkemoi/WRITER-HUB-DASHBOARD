@@ -1,42 +1,45 @@
 'use client';
+
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
+import { Button, LinearProgress } from '@mui/material';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import resumeSections from '../../dashboard/account/resume-sections';
-import { ResumeProfileDetailsForm } from '@/components/resume/profile/resume-profile-details-form';
-import { EducationHolder } from './education-holder';
-import { ResumeSkillsDetailsForm } from '@/components/resume/skills/resume-skills-detail-form';
-import { WorkHistoryHolder } from './work-history-holder';
-import { ProfessionalSummary } from '@/components/resume/professional-summary/professional-summary';
-import { Button, LinearProgress } from '@mui/material';
+
 import { paths } from '@/paths';
-import { useRouter } from 'next/navigation'
+import { ProfessionalSummary } from '@/components/resume/professional-summary/professional-summary';
+import { ResumeProfileDetailsForm } from '@/components/resume/profile/resume-profile-details-form';
+import { ResumeSkillsDetailsForm } from '@/components/resume/skills/resume-skills-detail-form';
+
+import resumeSections from '../../dashboard/account/resume-sections';
+import { EducationHolder } from './education-holder';
+import { WorkHistoryHolder } from './work-history-holder';
 
 interface ResumeMainProps {
   // Optional prop for global index
 }
 
-const ResumeMain: React.FC<ResumeMainProps> = ({ }) => {
+const ResumeMain: React.FC<ResumeMainProps> = ({}) => {
   const [index, setIndex] = React.useState(0);
-  const [currentComponent, setCurrentComponent] = React.useState("");
+  const [currentComponent, setCurrentComponent] = React.useState('');
   const router = useRouter();
   const [isPending, setIsPending] = React.useState(false);
 
   const incrementIndex = () => {
-    var sectionsLength = resumeSections.length
+    const sectionsLength = resumeSections.length;
     if (index < sectionsLength - 1) {
       setIndex(index + 1);
     }
-    if (currentComponent === "ProfessionalSummary") {
-      setIsPending(true)
-      router.push(paths.resume.end);
+    if (currentComponent === 'ProfessionalSummary') {
+      setIsPending(true);
+      router.push(paths.resume.resumeTemplates);
     }
-  }
+  };
   const decrementIndex = () => {
     setIndex(index > 0 ? index - 1 : index);
-  }
+  };
 
   const handleIndexClick = (idx: number) => {
     setIndex(idx);
@@ -45,15 +48,37 @@ const ResumeMain: React.FC<ResumeMainProps> = ({ }) => {
   const renderForm = () => {
     switch (index) {
       case 0:
-        return <ResumeProfileDetailsForm subTitle={resumeSections[index].subTitle} description={resumeSections[index].description} />;
+        return (
+          <ResumeProfileDetailsForm
+            subTitle={resumeSections[index].subTitle}
+            description={resumeSections[index].description}
+          />
+        );
       case 1:
-        return <WorkHistoryHolder subTitle={resumeSections[index].subTitle} description={resumeSections[index].description} />;
+        return (
+          <WorkHistoryHolder
+            subTitle={resumeSections[index].subTitle}
+            description={resumeSections[index].description}
+          />
+        );
       case 2:
-        return <EducationHolder subTitle={resumeSections[index].subTitle} description={resumeSections[index].description} />;
+        return (
+          <EducationHolder subTitle={resumeSections[index].subTitle} description={resumeSections[index].description} />
+        );
       case 3:
-        return <ResumeSkillsDetailsForm subTitle={resumeSections[index].subTitle} description={resumeSections[index].description} />;
+        return (
+          <ResumeSkillsDetailsForm
+            subTitle={resumeSections[index].subTitle}
+            description={resumeSections[index].description}
+          />
+        );
       case 4:
-        return <ProfessionalSummary subTitle={resumeSections[index].subTitle} description={resumeSections[index].description} />;
+        return (
+          <ProfessionalSummary
+            subTitle={resumeSections[index].subTitle}
+            description={resumeSections[index].description}
+          />
+        );
       default:
         return null;
     }
@@ -63,20 +88,21 @@ const ResumeMain: React.FC<ResumeMainProps> = ({ }) => {
   React.useEffect(() => {
     const content = renderForm();
     console.log('Current form content:', content?.type.name);
-    setCurrentComponent(content?.type.name)
+    setCurrentComponent(content?.type.name);
   }, [index]); // Add dependencies to log when content changes
-
 
   return (
     <Stack>
       <Box display="flex" justifyContent="center" mb={1} position="relative">
-        {resumeSections.map((section, idx) => (
+        {resumeSections.map((_section, idx) => (
           <Box
             key={idx}
             width={24}
             height={24}
             borderRadius="50%"
-            bgcolor={index !== undefined ? (idx === index ? 'success.main' : 'gray') : (idx <= index ? 'success.main' : 'gray')} // Conditional color logic
+            bgcolor={
+              index !== undefined ? (idx === index ? 'success.main' : 'gray') : idx <= index ? 'success.main' : 'gray'
+            } // Conditional color logic
             display="flex"
             justifyContent="center"
             alignItems="center"
@@ -96,7 +122,9 @@ const ResumeMain: React.FC<ResumeMainProps> = ({ }) => {
                 zIndex: -1, // Ensure the line is behind the circle
               },
             }}
-            onClick={() => handleIndexClick(idx)} // Add click event handler
+            onClick={() => {
+              handleIndexClick(idx);
+            }} // Add click event handler
           >
             <Typography variant="caption" color="white">
               {idx + 1}
@@ -108,9 +136,7 @@ const ResumeMain: React.FC<ResumeMainProps> = ({ }) => {
       <div>
         <Box textAlign="center" mb={1}>
           <Typography variant="h5">{resumeSections[index].title}</Typography>
-          {isPending && (
-            <LinearProgress sx={{ width: '100%' }} />
-          )}
+          {isPending ? <LinearProgress sx={{ width: '100%' }} /> : null}
         </Box>
         <Grid container>
           <Grid item lg={12} md={12} xs={12}>
@@ -120,10 +146,11 @@ const ResumeMain: React.FC<ResumeMainProps> = ({ }) => {
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', padding: 2 }}>
           <div>
-            {
-              index > 0 &&
-              <Button variant="contained" sx={{ borderRadius: '25px' }} onClick={decrementIndex} color="secondary">Previous</Button>
-            }
+            {index > 0 && (
+              <Button variant="contained" sx={{ borderRadius: '25px' }} onClick={decrementIndex} color="secondary">
+                Previous
+              </Button>
+            )}
           </div>
           <Button
             variant="contained"
@@ -140,10 +167,9 @@ const ResumeMain: React.FC<ResumeMainProps> = ({ }) => {
             Next
           </Button>
         </Box>
-
       </div>
     </Stack>
   );
-}
+};
 
 export default ResumeMain;

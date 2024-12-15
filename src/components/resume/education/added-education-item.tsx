@@ -14,8 +14,8 @@ import {
     Slide,
     Button,
 } from '@mui/material';
-import { CalendarToday as CalendarIcon, Delete, Edit, ExpandMore, ExpandLess } from '@mui/icons-material';
-import { ArrowForward, ArrowBack } from '@mui/icons-material';
+import { CalendarToday as CalendarIcon, Delete, Edit, ExpandMore, ExpandLess , ArrowForward, ArrowBack } from '@mui/icons-material';
+
 import { useUser } from '@/hooks/use-user';
 import { authClient } from '@/lib/auth/client';
 import DOMPurify from 'dompurify'; // Import dompurify for sanitizing HTML
@@ -135,7 +135,7 @@ export const EducationItem: React.FC<EducationHistoryItemProps> = ({ onEditEduca
                                                         sx={{ color: 'primary.main' }}
                                                         aria-label="expand"
                                                         size="small"
-                                                        onClick={() => toggleDescription(educationIndex)} // Toggle description expansion
+                                                        onClick={() => { toggleDescription(educationIndex); }} // Toggle description expansion
                                                     >
                                                         {isExpanded ? <ExpandLess /> : <ExpandMore />} {/* Toggle expand/collapse icon */}
                                                     </IconButton>
@@ -143,7 +143,7 @@ export const EducationItem: React.FC<EducationHistoryItemProps> = ({ onEditEduca
                                                         sx={{ color: 'primary.main' }}
                                                         aria-label="edit"
                                                         size="small"
-                                                        onClick={() => onEditEducation(education)} // Pass the education object to the edit function
+                                                        onClick={() => { onEditEducation(education); }} // Pass the education object to the edit function
                                                     >
                                                         <Edit fontSize="small" />
                                                     </IconButton>
@@ -151,7 +151,7 @@ export const EducationItem: React.FC<EducationHistoryItemProps> = ({ onEditEduca
                                                         sx={{ color: 'error.main' }}
                                                         aria-label="delete"
                                                         size="small"
-                                                        onClick={() => handleDeleteClick(educationIndex)} // Adjust index for deletion
+                                                        onClick={() => { handleDeleteClick(educationIndex); }} // Adjust index for deletion
                                                     >
                                                         <Delete fontSize="small" />
                                                     </IconButton>
@@ -164,19 +164,15 @@ export const EducationItem: React.FC<EducationHistoryItemProps> = ({ onEditEduca
                                                     <span style={{ fontWeight: 'bold', color: 'primary' }}>From:</span>
                                                     <CalendarIcon fontSize="small" style={{ marginRight: '4px', marginLeft: '4px' }} /> {education.startDate}
                                                 </Typography>
-                                                {!education.studyingHere && education.endDate && (
-                                                    <Typography style={{ display: 'flex', alignItems: 'center', fontSize: '0.9rem', color: 'text.secondary' }}>
+                                                {!education.studyingHere && education.endDate ? <Typography style={{ display: 'flex', alignItems: 'center', fontSize: '0.9rem', color: 'text.secondary' }}>
                                                         <span style={{ fontWeight: 'bold', color: 'primary' }}>To:</span>
                                                         <CalendarIcon fontSize="small" style={{ marginRight: '4px', marginLeft: '4px' }} /> {education.endDate}
-                                                    </Typography>
-                                                )}
-                                                {education.studyingHere && (
-                                                    <Typography
+                                                    </Typography> : null}
+                                                {education.studyingHere ? <Typography
                                                         sx={{ marginLeft: '8px', fontSize: '0.9rem', fontWeight: '500', color: 'success.main' }} // Adjusted to use 'success.main'
                                                     >
                                                         Currently Studying Here
-                                                    </Typography>
-                                                )}
+                                                    </Typography> : null}
                                             </Box>
 
                                             <Typography variant="body2" style={{ marginTop: '4px', fontSize: '0.9rem' }}>
@@ -188,7 +184,7 @@ export const EducationItem: React.FC<EducationHistoryItemProps> = ({ onEditEduca
                                                             component="span"
                                                             color="primary"
                                                             style={{ cursor: 'pointer' }}
-                                                            onClick={() => toggleDescription(educationIndex)} // Expand on click
+                                                            onClick={() => { toggleDescription(educationIndex); }} // Expand on click
                                                         >
                                                             &nbsp;... Expand
                                                         </Typography>

@@ -3,15 +3,19 @@ export const paths = {
   auth: {
     signIn: '/auth/sign-in',
     signUp: '/auth/sign-up',
-    resetPassword: '/auth/reset-password'
+    resetPassword: '/auth/reset-password',
   },
-  pricing: '/pricing',
-  options: '/options',
   resume: {
     upload: '/resume/upload',
+    resumePricing: '/resume/pricing',
+    resumeOptions: '/resume/options',
+    resumeSections: '/resume/resume-sections',
+    resumeUpload: '/resume/resume-upload',
     enter: '/resume/enter',
-    end: '/resume/end',
-    checkout: '/resume/checkout'
+    additionalServices: '/resume/additional-services',
+    resumeTemplates: '/resume/resume-templates',
+    checkout: '/resume/checkout',
+    thankyou: '/resume/thankyou',
   },
   dashboard: {
     overview: '/dashboard',
